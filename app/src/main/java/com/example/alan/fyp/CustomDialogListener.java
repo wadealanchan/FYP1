@@ -6,6 +6,6 @@ package com.example.alan.fyp;
 public interface CustomDialogListener {
 
     void onAction(Object object);
-    void onDialogPositive(String Email,String Password);
+    void onDialogPositive(String Name, String Email,String Password);
     void onDialogNegative(Object object);
 }

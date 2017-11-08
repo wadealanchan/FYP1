@@ -2,24 +2,28 @@ package com.example.alan.fyp;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.example.alan.fyp.databinding.SignupformBinding;
+import com.example.alan.fyp.viewModel.UserViewModel;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 
 /**
@@ -31,15 +35,24 @@ public class CustomDialogFragment extends DialogFragment{
     private static final String TAG = "CustomDialogF";
     private CustomDialogListener mListener;
 
+    public UserViewModel userViewModel = new UserViewModel();
+
     private EditText register_username,register_email,register_pw;
     public String email ;
     public String password;
-    //CustomDialogFragment C_Dialog = CustomDialogFragment.newInstance("Email","Pw");
+    public String name;
     public CustomDialogFragment() {
         // Required empty public constructor
 
     }
+    public String getusername(){
+        return  name;
+    }
 
+    public void setusername(String Name)
+    {
+        this.name=Name;
+    }
 
     public String getuseremail(){
         return  email;
@@ -96,7 +109,14 @@ public class CustomDialogFragment extends DialogFragment{
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
 
-        View customView = inflater.inflate(R.layout.fragment_custom_dialog, null);
+//        SignupformBinding binding = DataBindingUtil.inflate(inflater,
+//                R.layout.signupform,
+//                null,
+//                false);
+//        View customView = binding.getRoot();
+        View customView = inflater.inflate(R.layout.signupform, null);
+        //binding.setUser(userViewModel);
+
         register_username = (EditText) customView.findViewById(R.id.field_name);
         register_email = (EditText) customView.findViewById(R.id.field_email);
         register_pw = (EditText) customView.findViewById(R.id.field_pw);
@@ -124,7 +144,7 @@ public class CustomDialogFragment extends DialogFragment{
                            if(validateForm()) {
                                Toast.makeText(getContext(), "Here", Toast.LENGTH_LONG).show();
                                //String message = email;
-                               mListener.onDialogPositive(email, password);
+                               mListener.onDialogPositive(name ,email, password);
                            }
                         }
                         return true;
@@ -171,9 +191,13 @@ public class CustomDialogFragment extends DialogFragment{
     }
 
     private boolean validateForm() {
+        name=register_username.getText().toString().trim();
         email= register_email.getText().toString().trim();
         password= register_pw.getText().toString().trim();
+        //email = userViewModel.email.get();
+        //password = userViewModel.password.get();
 
+        if(name.isEmpty())return false;
         if(email.isEmpty())return false;
         if(password.isEmpty())return false;
         return true;

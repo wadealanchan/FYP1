@@ -36,19 +36,19 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AuthClass"
+            android:name=".activity.AuthClass"
             android:label="AuthClass"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme">
         </activity>
         <activity
             android:name=".googleauth"
             android:label="GoogleAuth"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme">
         </activity>
         <activity
             android:name=".Profile"
             android:label="Profile"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme">
         </activity>
         <activity
             android:name=".chat_main"

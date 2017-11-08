@@ -15,7 +15,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.database.FirebaseListAdapter;
@@ -24,9 +23,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 
-//import hani.momanii.supernova_emoji_library.Actions.EmojIconActions;
-//import hani.momanii.supernova_emoji_library.Helper.EmojiconEditText;
-//import hani.momanii.supernova_emoji_library.Helper.EmojiconTextView;
+
 
 public class chat_main extends AppCompatActivity {
 

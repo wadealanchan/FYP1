@@ -1,39 +1,28 @@
-package com.example.alan.fyp;
+package com.example.alan.fyp.activity;
 
 
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.nfc.Tag;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.BottomSheetDialog;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.auth.api.Auth;
+import com.example.alan.fyp.CustomDialogFragment;
+import com.example.alan.fyp.CustomDialogListener;
+import com.example.alan.fyp.R;
+import com.example.alan.fyp.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 /**
  * Created by wadealanchan on 4/9/2017.
@@ -43,14 +32,14 @@ public class AuthClass extends BaseActivity implements CustomDialogListener,View
 
 
     private FirebaseAuth mAuth;
-    private FirebaseAuth.AuthStateListener mAuthListener;
+
     private EditText mEmail;
     private EditText mPw;
+    String Name;
     String Email;
     String Password;
-    CustomDialogFragment C_Dialog = new CustomDialogFragment();
+    private DatabaseReference mDatabase;
     public final String TAG ="AuthClass";
-    Button signout;
 
 
 
@@ -59,6 +48,7 @@ public class AuthClass extends BaseActivity implements CustomDialogListener,View
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
         setContentView(R.layout.activity_login);
+        mDatabase = FirebaseDatabase.getInstance().getReference();
 
         mEmail= (EditText) findViewById(R.id.field_email);
         mPw=  (EditText) findViewById(R.id.field_pw);
@@ -66,6 +56,7 @@ public class AuthClass extends BaseActivity implements CustomDialogListener,View
         findViewById(R.id.btn_createac).setOnClickListener(this);
         findViewById(R.id.btn_signin).setOnClickListener(this);
         findViewById(R.id.btn_signout).setOnClickListener(this);
+
         //Email= C_Dialog.getArguments().getString("email");
 
 
@@ -95,7 +86,11 @@ public class AuthClass extends BaseActivity implements CustomDialogListener,View
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("", "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            //updateUI(user);
+
+                            updateUI(user);
+                            setName(Name);
+
+
                         } else if(!task.isSuccessful()){
                             // If sign in fails, display a message to the user.
                             FirebaseAuthException e = (FirebaseAuthException )task.getException();
@@ -103,7 +98,7 @@ public class AuthClass extends BaseActivity implements CustomDialogListener,View
                             Log.e("LoginActivity", "Failed Registration", e);
                             Toast.makeText(AuthClass.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
-                            //updateUI(null);
+
                         }
 
                         // [START_EXCLUDE]
@@ -135,7 +130,7 @@ public class AuthClass extends BaseActivity implements CustomDialogListener,View
                             Log.d("", "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
-                            firebase();
+
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w("", "signInWithEmail:failure", task.getException());
@@ -154,32 +149,6 @@ public class AuthClass extends BaseActivity implements CustomDialogListener,View
                 });
         // [END sign_in_with_email]
     }
-
-
-    private void firebase(){
-
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("message");
-
-        myRef.setValue("Hello, World!");
-        myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                String value = dataSnapshot.getValue(String.class);
-                Log.d(TAG, "Value is: " + value);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.w(TAG, "Failed to read value.", error.toException());
-            }
-        });
-
-    }
-
 
 
 
@@ -251,6 +220,31 @@ public class AuthClass extends BaseActivity implements CustomDialogListener,View
 
     }
 
+
+    private void onAuthSuccess(FirebaseUser user) {
+        String username = usernameFromEmail(user.getEmail());
+
+        // Write new user
+        writeNewUser(user.getUid(), username, user.getEmail());
+       Log.d("onAuthSuccess",username);
+        // Go to MainActivity
+
+    }
+
+    private void writeNewUser(String userId, String name, String email) {
+        User user = new User(name, email);
+
+        mDatabase.child("users").child(userId).setValue(user);
+    }
+
+    private String usernameFromEmail(String email) {
+        if (email.contains("@")) {
+            return email.split("@")[0];
+        } else {
+            return email;
+        }
+    }
+
     @Override
     public void onClick(View v) {
         int i = v.getId();
@@ -260,14 +254,14 @@ public class AuthClass extends BaseActivity implements CustomDialogListener,View
                 showCustomDialog();
                  break;
             case R.id.btn_signin:
-                Log.e("Did i click here?", "signin");
              signIn(mEmail.getText().toString(), mPw.getText().toString());
                 break;
 
             case R.id.btn_signout:
-                Log.e("Did i click here?", "signout");
                 signOut();
                 break;
+
+
         }
 
     }
@@ -289,14 +283,21 @@ public class AuthClass extends BaseActivity implements CustomDialogListener,View
     }
 
     @Override
-    public void onDialogPositive(String Email, String Pw) {
+    public void onDialogPositive(String Name,String Email, String Pw) {
         Toast.makeText(this,"Custom Dialog "+  getString(R.string.createac)+" "+Email+ " " +Pw,Toast.LENGTH_SHORT).show();
+        this.Name=Name;
         this.Email= Email;
         this.Password=Pw;
         Log.d(TAG+"Email:",Email);
         Log.d(TAG+"Password:",Password);
         createAccount(Email,Pw);
-
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        Log.d("Name: ", Name);
+//        if(user!=null)
+//       {
+//           Log.d("setName", "gethere");
+//           setName(Name);
+//       }
     }
 
     @Override
@@ -304,6 +305,25 @@ public class AuthClass extends BaseActivity implements CustomDialogListener,View
         //Toast.makeText(this,"Custom Dialog "+getString(R.string.cancel),Toast.LENGTH_SHORT).show();
     }
 
+    private void setName(String Name){
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                .setDisplayName(Name)
+                // .setPhotoUri(Uri.parse("https://example.com/jane-q-user/profile.jpg"))
+                .build();
+
+        user.updateProfile(profileUpdates)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "User profile updated.");
+                        }
+                    }
+                });
+    }
 
 
 }
