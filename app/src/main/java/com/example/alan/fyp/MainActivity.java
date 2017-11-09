@@ -30,7 +30,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }, 7000);
 
         findViewById(R.id.btn_login).setOnClickListener(this);
-        findViewById(R.id.btn_gsignin).setOnClickListener(this);
         findViewById(R.id.btn_chat).setOnClickListener(this);
         findViewById(R.id.btn_profile).setOnClickListener(this);
 
@@ -44,11 +43,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int i = v.getId();
         if (i == R.id.btn_login) {
             Intent newAct = new Intent(MainActivity.this,AuthClass.class);
-            startActivity(newAct);
-        }else if(i == R.id.btn_gsignin)
-        {
-            Log.e("Did i click here?", "googlesigin");
-            Intent newAct = new Intent(MainActivity.this,googleauth.class);
             startActivity(newAct);
         }
         else if(i == R.id.btn_chat)
