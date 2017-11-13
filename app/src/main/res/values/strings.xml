@@ -21,6 +21,10 @@
     <string name="hello">Hello!</string>
     <string name="name">Name</string>
     <string name="emailaddress">Email address</string>
+    <string name="google_sign_up">Google sign in</string>
+    <string name="title_activity_mainpage">Mainpage</string>
 
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
 
 </resources>

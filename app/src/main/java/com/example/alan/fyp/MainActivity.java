@@ -32,6 +32,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.btn_login).setOnClickListener(this);
         findViewById(R.id.btn_chat).setOnClickListener(this);
         findViewById(R.id.btn_profile).setOnClickListener(this);
+        findViewById(R.id.btn_mainpage).setOnClickListener(this);
+        findViewById(R.id.btn_newpost).setOnClickListener(this);
 
     }
 
@@ -55,6 +57,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Intent newAct = new Intent(MainActivity.this,Profile.class);
             startActivity(newAct);
         }
+        else if(i == R.id.btn_mainpage)
+        {
+            Intent newAct = new Intent(MainActivity.this,Mainpage.class);
+            startActivity(newAct);
+        }
+        else if(i == R.id.btn_newpost)
+        {
+            Intent newAct = new Intent(MainActivity.this,Newpost.class);
+            startActivity(newAct);
+        }
+
     }
 
 

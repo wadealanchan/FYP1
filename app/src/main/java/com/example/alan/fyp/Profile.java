@@ -17,6 +17,7 @@ public class Profile extends AppCompatActivity{
 
     ProfilepageBinding binding;
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +38,13 @@ public class Profile extends AppCompatActivity{
         });
 
 
+
+
+
     }
+
+
+
+
 
 }

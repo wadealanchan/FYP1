@@ -1,9 +1,11 @@
 package com.example.alan.fyp.activity;
 
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -13,6 +15,7 @@ import android.widget.Toast;
 import com.example.alan.fyp.CustomDialogFragment;
 import com.example.alan.fyp.CustomDialogListener;
 import com.example.alan.fyp.R;
+import com.example.alan.fyp.model.User;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -52,15 +55,15 @@ public class AuthClass extends BaseActivity implements  GoogleApiClient.OnConnec
     private GoogleApiClient mGoogleApiClient;
     private static final int RC_SIGN_IN = 9001;
 
-
-
+    DatabaseReference mDatabaseRefUser;
+    ProgressDialog progressDialog;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
         setContentView(R.layout.activity_login);
         mDatabase = FirebaseDatabase.getInstance().getReference();
-
+        progressDialog = new ProgressDialog(this);
         mEmail= (EditText) findViewById(R.id.field_email);
         mPw=  (EditText) findViewById(R.id.field_pw);
 
@@ -68,7 +71,7 @@ public class AuthClass extends BaseActivity implements  GoogleApiClient.OnConnec
         findViewById(R.id.btn_signin).setOnClickListener(this);
         findViewById(R.id.btn_signout).setOnClickListener(this);
         findViewById(R.id.btn_googlesignin).setOnClickListener(this);
-
+        mDatabaseRefUser = FirebaseDatabase.getInstance().getReference().child("users");
 
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -92,45 +95,131 @@ public class AuthClass extends BaseActivity implements  GoogleApiClient.OnConnec
         updateUI(currentUser);
     }
 
+//    private void createAccount(String email, String password) {
+//        Log.d("Create Account:", "createAccount:" + email);
+//        if (!validateForm(2)) {
+//            return;
+//        }
+//
+//        showProgressDialog();
+//        Log.d(TAG,"get it here?");
+//        // [START create_user_with_email]
+//        mAuth.createUserWithEmailAndPassword(email, password)
+//
+//                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+//                      @Override
+//                      public void onComplete(@NonNull Task<AuthResult> task) {
+//                          if (task.isSuccessful()) {
+//                              // Sign in success, update UI with the signed-in user's information
+//                              Log.d("", "createUserWithEmail:success");
+//                              FirebaseUser user = mAuth.getCurrentUser();
+//
+//                              updateUI(user);
+//                              setName(Name);
+//
+//
+//                          } else if (!task.isSuccessful()) {
+//                              // If sign in fails, display a message to the user.
+//                              FirebaseAuthException e = (FirebaseAuthException) task.getException();
+//                              Log.w("", "createUserWithEmail:failure", task.getException());
+//                              Log.e("LoginActivity", "Failed Registration", e);
+//                              Toast.makeText(AuthClass.this, "Authentication failed.",
+//                                      Toast.LENGTH_SHORT).show();
+//
+//                          }
+//
+//                          // [START_EXCLUDE]
+//                          hideProgressDialog();
+//                          // [END_EXCLUDE]
+//                      }
+//
+//                  });
+//              }
+//        // [END create_user_with_email]
+
+
+
+
     private void createAccount(String email, String password) {
-        Log.d("Create Account:", "createAccount:" + email);
-        if (!validateForm(2)) {
-            return;
-        }
-
-        showProgressDialog();
-        Log.d(TAG,"get it here?");
-        // [START create_user_with_email]
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d("", "createUserWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-
-                            updateUI(user);
-                            setName(Name);
 
 
-                        } else if(!task.isSuccessful()){
-                            // If sign in fails, display a message to the user.
-                            FirebaseAuthException e = (FirebaseAuthException )task.getException();
-                            Log.w("", "createUserWithEmail:failure", task.getException());
-                            Log.e("LoginActivity", "Failed Registration", e);
-                            Toast.makeText(AuthClass.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
+        if (!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password)) {
 
-                        }
+            progressDialog.setMessage("Signing Up...");
+            progressDialog.show();
 
-                        // [START_EXCLUDE]
-                        hideProgressDialog();
-                        // [END_EXCLUDE]
+            mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if (task.isSuccessful()) {
+                        FirebaseUser firebaseuser = mAuth.getCurrentUser();
+
+                        updateUI(firebaseuser);
+                        setName(Name);
+                        String userId = mAuth.getCurrentUser().getUid();
+
+                        User user = new User();
+                        user.setName(Name);
+//                        user.setImage("default");
+
+                        mDatabaseRefUser.child(userId).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+
+                                progressDialog.dismiss();
+
+                                if (task.isSuccessful()) {
+//                                    Toast.makeText(SignUpActivity.this, "You need to setup your account.", Toast.LENGTH_LONG).show();
+//                                    Intent intent = new Intent(SignUpActivity.this, SettingsActivity.class);
+//                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                                    startActivity(intent);
+                                } else {
+//                                    Snackbar.make(view, "Sign Up Failed! Try again.", Snackbar.LENGTH_SHORT)
+//                                            .setAction("Action", null)
+//                                            .show();
+                                }
+                            }
+                        });
+
+                    } else {
+                        progressDialog.dismiss();
+
+//                        Snackbar.make(view, "Sign Up Failed! Try again.", Snackbar.LENGTH_SHORT)
+//                                .setAction("Action", null)
+//                                .show();
                     }
-                });
-        // [END create_user_with_email]
+                }
+            });
+
+        } else {
+//            Snackbar.make(view, "Fill all fields", Snackbar.LENGTH_SHORT)
+//                    .setAction("Action", null)
+//                    .show();
+        }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

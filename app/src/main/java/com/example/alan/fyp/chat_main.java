@@ -129,13 +129,13 @@ public class chat_main extends AppCompatActivity {
 
                     //Get references to the views of list_item.xml
 
-                Log.d("123", "did i get it here?");
+               // Log.d("123", "did i get it here?");
                 TextView messageText, messageUser, messageTime;
                     messageText = (TextView) v.findViewById(R.id.message_text);
                     messageUser = (TextView) v.findViewById(R.id.message_user);
                     messageTime = (TextView) v.findViewById(R.id.message_time);
 
-                Log.d("123:", model.getMessageUser());
+                //Log.d("123:", model.getMessageUser());
                     messageText.setText(model.getMessageText());
                     messageUser.setText(model.getMessageUser());
                     messageTime.setText(DateFormat.format("dd-MM-yyyy (HH:mm:ss)", model.getMessageTime()));
