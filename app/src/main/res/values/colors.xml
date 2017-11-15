@@ -18,7 +18,7 @@
 
     <color name="colorgrey">#424242</color>
 
-
+    <color name="colorgrey2">#BDBDBD</color>
     <color name="black1">#000000</color>
 
     <color name="buttonbg">#303030</color>
@@ -26,6 +26,8 @@
     <color name="bgcolor">#303030</color>
 
     <color name="spcolor">#212121</color>
+
+    <color name="transparent">#80000000</color>
 
 
 

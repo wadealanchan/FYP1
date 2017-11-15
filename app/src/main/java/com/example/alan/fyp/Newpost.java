@@ -21,6 +21,7 @@ import com.example.alan.fyp.databinding.ActivityNewpostBinding;
 import com.example.alan.fyp.model.Post;
 import com.example.alan.fyp.model.User;
 import com.example.alan.fyp.viewModel.PostViewModel;
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -62,8 +63,8 @@ public class Newpost extends AppCompatActivity {
     private static final int GALLERY_REQUEST = 1;
     private Uri imageMediaURI;
     public final String TAG="New Post: ";
-
     PostViewModel postViewModel = new PostViewModel();
+    FirebaseUser firebaseuser = FirebaseAuth.getInstance().getCurrentUser();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,20 +78,7 @@ public class Newpost extends AppCompatActivity {
         userReference = FirebaseDatabase.getInstance().getReference().child("users");
 
         progressDialog = new ProgressDialog(this);
-
-//        editTitle = (EditText) findViewById(R.id.edit_title);
-//        editDescription = (EditText) findViewById(R.id.edit_content);
-//
-//        imageMedia = (ImageButton) findViewById(R.id.image_media);
-//        imageMedia.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(ACTION_GET_CONTENT);
-//                intent.setType("image/*");
-//                startActivityForResult(intent, GALLERY_REQUEST);
-//            }
-//        });
-
+        
         newpostBinding.setPost(postViewModel);
         ButterKnife.bind(this);
     }
@@ -151,8 +139,6 @@ public class Newpost extends AppCompatActivity {
 
     private void createPost(View v){
 
-//        final String title = editTitle.getText().toString().trim();
-//        final String description = editDescription.getText().toString().trim();
 
         final String title = postViewModel.Title.get();
         final String description = postViewModel.Description.get();
@@ -169,10 +155,10 @@ public class Newpost extends AppCompatActivity {
             filePath.putFile(imageMediaURI).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(final UploadTask.TaskSnapshot taskSnapshot) {
-                    String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+                    String userId = firebaseuser.getUid();
                     Log.d(TAG, userId);
-                    String userId2 = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
-                    Log.d(TAG, userId2);
+
 
                     userReference.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -190,24 +176,17 @@ public class Newpost extends AppCompatActivity {
                                 post.setImage(downloadUri.toString());
 
 
-                                User user = dataSnapshot.getValue(User.class);
-//                                Log.d(TAG, user.getName());
+                                //User user = dataSnapshot.getValue(User.class);
 
 
-//                                FirebaseAuth.getInstance().addAuthStateListener((firebaseAuth) -> {
-//                                    FirebaseUser user = firebaseAuth.getCurrentUser();
-//                                   // User user = dataSnapshot.getValue(User.class);
-//
-//
-//                                    Log.d(TAG,user.getUid()+"    " +user.getDisplayName());
-//                                    post.getUser().setId(user.getUid());
-//                                    post.getUser().setName(user.getDisplayName());
-//
-//                                });
+                                post.getUser().setId(firebaseuser.getUid());
+                                post.getUser().setName(firebaseuser.getDisplayName());
+                                if(firebaseuser.getPhotoUrl()!=null){
+                                    post.getUser().setImage(firebaseuser.getPhotoUrl().toString());
+                                }else
+                                {
 
-                                post.getUser().setId(mAuth.getCurrentUser().getUid().toString());
-                                post.getUser().setName(user.getName());
-                               // post.getUser().setImage(user.getImage());
+                                }
 
                                 newPost.setValue(post).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override

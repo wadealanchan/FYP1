@@ -2,7 +2,16 @@ package com.example.alan.fyp.model;
 
 import android.databinding.BaseObservable;
 import android.databinding.Bindable;
+import android.databinding.BindingAdapter;
 import android.databinding.Observable;
+import android.graphics.drawable.Drawable;
+import android.util.Log;
+import android.widget.ImageView;
+
+import com.example.alan.fyp.viewModel.UserViewModel;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.squareup.picasso.Picasso;
 
 public class Post extends BaseObservable {
 
@@ -72,12 +81,27 @@ public class Post extends BaseObservable {
             this.name = name;
         }
 
-//        public String getImage() {
-//            return image;
-//        }
-//
-//        public void setImage(String image) {
-//            this.image = image;
-//        }
+        public String getImage() {
+            return image;
+        }
+
+        public void setImage(String image) {
+            this.image = image;
+        }
+
+
+
     }
+
+    @BindingAdapter({"bind:imageUrl"})
+    public static void loadImage(ImageView view, String image) {
+        Picasso.with(view.getContext()).load(image).into(view);
+    }
+
+
+    @BindingAdapter("android:src")
+    public static void setImageDrawable(ImageView view, Drawable drawable) {
+        view.setImageDrawable(drawable);
+    }
+
 }

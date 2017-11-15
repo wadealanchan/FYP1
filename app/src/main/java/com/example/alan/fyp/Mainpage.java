@@ -1,5 +1,7 @@
 package com.example.alan.fyp;
 
+import android.content.Context;
+import android.databinding.BindingAdapter;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -16,7 +18,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 
+import com.bumptech.glide.request.target.ImageViewTargetFactory;
 import com.example.alan.fyp.databinding.ActivityMainpageBinding;
 import com.example.alan.fyp.model.Post;
 import com.example.alan.fyp.viewModel.PostListViewModel;
@@ -28,6 +32,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 
 public class Mainpage extends AppCompatActivity
@@ -39,9 +44,9 @@ public class Mainpage extends AppCompatActivity
     FirebaseAuth mAuth;
     FirebaseAuth.AuthStateListener mAuthListener;
     RecyclerView mPostList;
-
+    Post post = new Post();
     PostListViewModel postList = new PostListViewModel();
-
+    UserViewModel userViewModel = new UserViewModel();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,15 +75,18 @@ public class Mainpage extends AppCompatActivity
 
         FirebaseAuth.getInstance().addAuthStateListener((firebaseAuth) -> {
             FirebaseUser user = firebaseAuth.getCurrentUser();
-            if (user != null) {
-                UserViewModel userViewModel = new UserViewModel(user.getDisplayName(), "", user.getEmail());
-                binding.setUser(userViewModel);
-                // User is signed in
-                //Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+            if (user != null ) {
+                if(user.getPhotoUrl()!=null){
+                    userViewModel = new UserViewModel(user.getDisplayName(), "", user.getEmail(), user.getPhotoUrl().toString());
+                    post.getUser().setImage(user.getPhotoUrl().toString());
+                    binding.setUser(userViewModel);
+                }else
+                {
+                    userViewModel = new UserViewModel(user.getDisplayName(), "", user.getEmail(), "");
+                }
             } else {
                 binding.setUser(null);
-                // User is signed out
-                //Log.d(TAG, "onAuthStateChanged:signed_out");
+
             }
         });
 
@@ -90,14 +98,11 @@ public class Mainpage extends AppCompatActivity
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                int i = 0;
                 postList.items.clear();
-                for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     // TODO: handle the post
                     Post p = postSnapshot.getValue(Post.class);
                     postList.items.add(p);
-                    //postList.items.set(i++, );
-                    Log.d("Mainpage", p.getTitle());
                 }
 
                 binding.executePendingBindings();
@@ -179,51 +184,7 @@ public class Mainpage extends AppCompatActivity
         return true;
     }
 
-//    @Override
-//    protected void onStart() {
-//        super.onStart();
-//        if (mAuth.getCurrentUser() != null) {
-//            fetchBlogPosts();
-//        }
-//    }
-//
-//    private void fetchBlogPosts() {
-//        FirebaseRecyclerAdapter<Post, PostViewHolder> firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<Post, PostViewHolder>(
-//                Post.class,
-//                R.layout.list_post,
-//                PostViewHolder.class,
-//                mDatabaseRefPosts
-//        ) {
-//            @Override
-//            protected void populateViewHolder(PostViewHolder viewHolder, Post model, int position) {
-//
-//
-//
-//                ListPostBinding binding1 = viewHolder.getBinding();
-//                //PostViewModel postViewModel = new PostViewModel(model.getTitle(), model.getDescription(), model.getImage(),model.getUser().getName());
-//                PostViewModel postViewModel = new PostViewModel("123", "123", "123","123");
-//                 binding1.setPost(postViewModel);
-//
-//            }
-//
-//        };
-//
-//        mPostList.setAdapter(firebaseRecyclerAdapter);
-//
-//    }
-//
-//    public static class PostViewHolder extends RecyclerView.ViewHolder {
-//        private ListPostBinding binding2;
-//
-//        public PostViewHolder(View itemView) {
-//            super(itemView);
-//
-//            binding2 = DataBindingUtil.bind(itemView);
-//        }
-//
-//        public ListPostBinding getBinding() {
-//            return binding2;
-//        }
-//
-//    }
+
+
+
 }
